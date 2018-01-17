@@ -1,0 +1,75 @@
+---
+# install packages with list
+
+- hosts: template
+
+  handlers:
+    - name: enabled docker
+      service: name=docker state=started enabled=true
+
+    - name: enabled mesos-master
+      service: name=mesos-master state=started enabled=true
+      listen: "mesos cluster"
+
+    - name: enabled marathon
+      service: name=marathon state=started enabled=true
+      listen: "mesos cluster"
+
+    - name: enabled mesos-slave
+      service: name=mesos-slave state=started enabled=true
+      listen: "mesos cluster"
+
+    - name: enabled zookeeper
+      service: name=zookeeper state=started enabled=true
+      listen: "mesos cluster"
+
+  tasks:
+
+    - name: Install EPEL
+      yum: name=epel-release state=installed update_cache=true
+
+    - name: Install Packeges
+      yum: name={{ item  }} state=installed update_cache=true
+      with_items:
+           - htop
+           - make
+           - automake
+           - git
+           - gcc
+           - python34-pip
+           - vim
+           - net-tools
+           - yum-utils
+           - device-mapper-persistent-data
+           - lvm2
+           - NetworkManager
+           - wget
+           - firewalld
+
+    - name: Update Pip
+      shell: pip3 install pip --upgrade
+
+    - name: Add Docker CE Repo
+      shell: yum-config-manager https://download.docker.com/linux/centos/docker-ce.repo
+
+    - name: Install Repo Mesos
+      yum_repository: 
+        name: Mesos Repo
+        description: Install mesos repo on CentOS
+        baseurl: rpm -Uvh http://repos.mesosphere.io/el/7/noarch/RPMS/mesosphere-el-repo-7-1.noarch.rpm
+
+    - name: Update System
+      shell: yum update -y
+
+    - name: Install Docker CE
+      yum: name=docker-ce state=installed update_cache=true validate_certs=yes
+      notify:
+        - enabled docker
+
+    - name: Install Mesos Packeges
+      yum: name={{ item  }} state=installed update_cache=true validate_certs=yes
+      with_items:
+        - mesosphere-zookeeper
+        - mesos
+        - marathon
+      notify: "mesos cluster"
