@@ -24,7 +24,7 @@
         wait_timeout: 500
         ssh_key_ids:
             - "{{ root }}"
-            - "{{ Blackwolf }}"
+            - "{{ admin }}"
       register: blackwolf_vps
     
     - digital_ocean_block_storage:
