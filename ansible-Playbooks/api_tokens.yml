@@ -3,5 +3,5 @@
     "root":"Fingerprint chave ssh rsa",
     "admin":"Fingerprint chave ssh rsa",
     "telegram_token":'xxxxxxxxxxxyyyyyyyyyyyy',
-    "user_id":189680175
+    "user_id": "ID de quem recebera a messagem"
 }
