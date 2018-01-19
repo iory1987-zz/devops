@@ -1,0 +1,57 @@
+---
+# Dicas para execucao
+# Passar o hostname desejado pela linha de comando
+# ansible-playbook --extra-vars "hostname=catacumba" digitalocean.yml
+
+
+- hosts: digitalocean
+
+  vars_files:
+    - api_tokens.yml
+
+  handlers:
+
+  tasks:
+  
+    - digital_ocean:
+        state: present
+        command: droplet
+        name: "{{ hostname }}"
+        api_token: "{{ ocean_token }}"
+        size_id: 1gb
+        region_id: nyc1
+        image_id: centos-7-x64
+        wait_timeout: 500
+        ssh_key_ids:
+            - "{{ root }}"
+            - "{{ Blackwolf }}"
+      register: blackwolf_vps
+    
+    - digital_ocean_block_storage:
+        state: present
+        command: create
+        api_token: "{{ ocean_token }}"
+        region: nyc1
+        block_size: 10
+        volume_name: docker-block-storage
+    
+    
+    - digital_ocean_block_storage:
+        state: present
+        command: attach
+        api_token: "{{ ocean_token }}"
+        volume_name: docker-block-storage
+        region: nyc1
+        droplet_id: "{{ blackwolf_vps.droplet.id }}"
+
+    - debug:
+        msg: "ID:{{ blackwolf_vps.droplet.id }} - IP:{{ blackwolf_vps.droplet.ip_address }}"
+        
+    - name: Send Alert
+      telegram:
+        token: "{{ telegram_token }}"
+        chat_id: "{{ user_id }}"
+        msg: 
+          - "VPS created: "
+          - "ID:{{ blackwolf_vps.droplet.id }} - "
+          - "IP:{{ blackwolf_vps.droplet.ip_address }}"
