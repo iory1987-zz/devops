@@ -1,6 +1,7 @@
 # to run user:
-#		terraform plan -var-file='vars.tfvars'
-#		terraform apply -var-file="vars.tfvars"
+# terraform plan -var-file='vars.tfvars'
+# terraform apply -var-file="vars.tfvars"
+
 # Set the variable value in *.tfvars file
 variable "do_token" {}
 variable "hostname" { default = "docker"}

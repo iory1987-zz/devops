@@ -1,0 +1,57 @@
+---
+
+# Basic provisioning example
+- name: Create AWS resources
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  vars:
+    - aws_access_key: 'your_access_key'
+    - aws_secret_key: 'your_secret_key'
+    - key_name: 'Key_Name'
+    - aws_region: us-east-1
+    - vpc_id: vpc-d9f85ea2
+    - ami_id: ami-1853ac65
+    - instance_type: t2.micro
+    - my_local_cidr_ip: 0.0.0.0/0
+
+  tasks:
+    - name: Create a securiry group
+      ec2_group:
+        name: ansible
+        description: "Ansible Security Group"
+        region: "{{ aws_region }}"
+        vpc_id: "{{ vpc_id }}"
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        rules:
+          - proto: all
+            cidr_ip: "{{ my_local_cidr_ip }}"
+          - proto: all
+            group_name: ansible
+        rules_egress:
+          - proto: all
+            cidr_ip: 0.0.0.0/0
+      register: firewall
+      
+    - name: Create an EC2 instance
+      ec2:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        key_name: "{{ key_name }}"
+        region: "{{ aws_region }}"
+        group_id: "{{ firewall.group_id }}"
+        instance_type: "{{ instance_type }}"
+        image: "{{ ami_id }}"
+        wait: yes
+        volumes:
+          - device_name: /dev/sda1        # Local aonde o disco é alocado
+            volume_type: gp2              # Tipo do volume
+            volume_size: 100              # Tamanho do disco em gigas
+            delete_on_termination: true   # Determina que o volume ira ser deletado
+        exact_count: 1                    # Numero de instancias
+        count_tag:
+          Name: aws-demo
+          Tipo: linux-vm-instance
+          Env:  develop
+      register: ec2

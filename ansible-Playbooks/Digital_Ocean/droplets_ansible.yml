@@ -1,7 +1,7 @@
 ---
 # Dicas para execucao
 # Passar o hostname desejado pela linha de comando
-# ansible-playbook --extra-vars "hostname=catacumba" digitalocean.yml
+# ansible-playbook --extra-vars "hostname=yugioh" digitalocean.yml
 
 
 - hosts: digitalocean

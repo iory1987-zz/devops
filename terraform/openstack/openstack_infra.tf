@@ -1,7 +1,7 @@
 provider "openstack" {
-	user_name   = "blackwolf"
-	tenant_name = "blackwolf"
-	password    = "P@SSw0rld"
+	user_name   = ""
+	tenant_name = ""
+	password    = ""
 	auth_url    = "http://192.168.10.5:5000/v3"
 	region      = "RegionOne"
 	domain_name = "Default"
